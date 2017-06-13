@@ -5,9 +5,6 @@ import (
 	"net/http"
 )
 
-// RequestIDFunc is a function type for generating a request ID.
-type RequestIDFunc func(req *http.Request) string
-
 type requestIDKeyType struct{}
 
 var requestIDKey = requestIDKeyType{}
@@ -19,9 +16,9 @@ func RequestID(r *http.Request) string {
 
 // RequestIDMiddleware is a http middleware to generate a request ID
 // and set it to the request context.
-func RequestIDMiddleware(next http.Handler, fn RequestIDFunc) http.Handler {
+func RequestIDMiddleware(next http.Handler, generateReqID func(req *http.Request) string) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		reqID := fn(r)
+		reqID := generateReqID(r)
 		ctx := context.WithValue(r.Context(), requestIDKey, reqID)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})

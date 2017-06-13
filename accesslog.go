@@ -12,9 +12,6 @@ type ResponseLogInfo struct {
 	Elapsed      time.Duration
 }
 
-// WriteLogFunc is a function type for writing access logs.
-type WriteLogFunc func(res ResponseLogInfo, req *http.Request)
-
 type wrappedResponseWriter struct {
 	http.ResponseWriter
 	wroteHeader  bool
@@ -43,7 +40,7 @@ func (w *wrappedResponseWriter) Write(buf []byte) (int, error) {
 }
 
 // AccessLogMiddleware is a http middleware to write access logs.
-func AccessLogMiddleware(next http.Handler, fn WriteLogFunc) http.Handler {
+func AccessLogMiddleware(next http.Handler, writeLog func(res ResponseLogInfo, req *http.Request)) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		now := time.Now()
 		ww := newWrappedResponseWriter(w)
@@ -54,6 +51,6 @@ func AccessLogMiddleware(next http.Handler, fn WriteLogFunc) http.Handler {
 			SentBodySize: ww.sentBodySize,
 			Elapsed:      elapsed,
 		}
-		fn(res, r)
+		writeLog(res, r)
 	})
 }
