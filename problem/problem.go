@@ -15,7 +15,7 @@
 //	)
 //
 //	func main() {
-//		addr := flag.String("addr", ":8080", "server listen address")
+//		addr := flag.String("addr", ":9090", "server listen address")
 //		flag.Parse()
 //
 //		http.HandleFunc("/", handleRoot)
@@ -23,22 +23,6 @@
 //			Addr: *addr,
 //		}
 //		log.Fatal(s.ListenAndServe())
-//	}
-//
-//	type problemExample1 struct {
-//		problem.Problem
-//		Balance  int      `json:"balance"`
-//		Accounts []string `json:"accounts"`
-//	}
-//
-//	type problemExample2 struct {
-//		problem.Problem
-//		InvalidParams []invalidParam `json:"invalid-params"`
-//	}
-//
-//	type invalidParam struct {
-//		Name   string `json:"name"`
-//		Reason string `json:"reason"`
 //	}
 //
 //	func sendResponse(w http.ResponseWriter, statusCode int, detail interface{}) error {
@@ -57,7 +41,11 @@
 //		p := r.Form.Get("prob")
 //		switch p {
 //		case "ex1":
-//			prob := problemExample1{
+//			prob := struct {
+//				problem.Problem
+//				Balance  int      `json:"balance"`
+//				Accounts []string `json:"accounts"`
+//			}{
 //				Problem: problem.Problem{
 //					Type:     "https://example.com/probs/out-of-credit",
 //					Title:    "You do not have enough credit.",
@@ -76,7 +64,14 @@
 //				return
 //			}
 //		case "ex2":
-//			prob := problemExample2{
+//			type invalidParam struct {
+//				Name   string `json:"name"`
+//				Reason string `json:"reason"`
+//			}
+//			prob := struct {
+//				problem.Problem
+//				InvalidParams []invalidParam `json:"invalid-params"`
+//			}{
 //				Problem: problem.Problem{
 //					Type:  "https://example.net/validation-error",
 //					Title: "Your request parameters didn't validate.",
